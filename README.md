@@ -27,8 +27,8 @@ Nothing here carries anyone else's projects or preferences — those are the par
 | `claude-tmux-flag` | `~/.local/bin/` (chmod +x) | Colors a tab by Claude's state (working / needs-input / done) |
 | `statusline-command.sh` | `~/.claude/` (chmod +x) | Status line showing the active model + dir + git branch |
 | `settings.hooks.json` | **merge** into `~/.claude/settings.json` | Notification + tab-color hooks, status line, model default |
-| `CLAUDE.global.template.md` | adapt → `~/.claude/CLAUDE.md` | Your standing working agreement |
-| `CLAUDE.project.template.md` | copy → `<project>/CLAUDE.md` | Per-project skeleton |
+| `CLAUDE.global.template.md` | adapt → `~/.claude/CLAUDE.md` | A **real, working** global agreement (author's identity redacted) — the actual behavior rules, ready to adapt |
+| `CLAUDE.project.template.md` | copy → `<project>/CLAUDE.md` | Per-project skeleton **+ an annotated example** |
 
 ## Install (macOS; adapt paths for Linux)
 ```bash
