@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# claude-workspace — start or re-attach a tmux session with one window per project.
+# Re-running ALWAYS syncs in any new project folders as additional windows.
+#
+#   claude-workspace                          # cd into each project, ready to run `claude`
+#   WORKSPACE_AUTOSTART=1 claude-workspace     # also launch `claude` in every project window
+#
+# Override defaults with env vars:
+#   WORKSPACE_SESSION=foo        (session name, default "work")
+#   WORKSPACE_PROJECTS_DIR=/path (default ~/Claude/Projects)
+
+set -euo pipefail
+
+SESSION="${WORKSPACE_SESSION:-work}"
+PROJECTS_DIR="${WORKSPACE_PROJECTS_DIR:-$HOME/Claude/Projects}"
+
+attach() {
+  if [ -n "${TMUX:-}" ]; then exec tmux switch-client -t "$SESSION"
+  else exec tmux attach -t "$SESSION"; fi
+}
+
+# Add a window for every project dir that doesn't already have one (idempotent).
+sync_project_windows() {
+  [ -d "$PROJECTS_DIR" ] || return 0
+  for dir in "$PROJECTS_DIR"/*/; do
+    [ -d "$dir" ] || continue
+    name="$(basename "$dir" | tr ' ' '-')"
+    if ! tmux list-windows -t "$SESSION" -F '#W' 2>/dev/null | grep -qxF "$name"; then
+      tmux new-window -d -t "$SESSION" -n "$name" -c "$dir"
+      [ -n "${WORKSPACE_AUTOSTART:-}" ] && tmux send-keys -t "$SESSION:$name" 'claude' C-m
+    fi
+  done
+}
+
+if tmux has-session -t "$SESSION" 2>/dev/null; then
+  # Session already exists: just pull in any newly-added projects, then attach.
+  sync_project_windows
+  attach
+fi
+
+# Fresh session: a general "home" shell first, then one window per project.
+tmux new-session -d -s "$SESSION" -n home -c "$HOME"
+sync_project_windows
+tmux select-window -t "$SESSION:2" 2>/dev/null || true
+attach

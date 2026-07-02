@@ -1,0 +1,44 @@
+{
+  "model": "opus[1m]",
+  "statusLine": {
+    "type": "command",
+    "command": "bash ~/.claude/statusline-command.sh"
+  },
+  "inputNeededNotifEnabled": true,
+  "agentPushNotifEnabled": true,
+  "hooks": {
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "MSG=$(jq -r \".message // empty\" | tr -d \"\\\"\"); [ -z \"$MSG\" ] && MSG=\"Claude Code needs your input\"; osascript -e \"display notification \\\"$MSG\\\" with title \\\"Claude Code\\\" sound name \\\"Glass\\\"\" >/dev/null 2>&1 || true; \"$HOME/.local/bin/claude-tmux-flag\" input"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "osascript -e \"display notification \\\"Task finished — ready for you\\\" with title \\\"Claude Code\\\" sound name \\\"Glass\\\"\" >/dev/null 2>&1 || true; \"$HOME/.local/bin/claude-tmux-flag\" done"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$HOME/.local/bin/claude-tmux-flag\" working"
+          }
+        ]
+      }
+    ]
+  }
+}

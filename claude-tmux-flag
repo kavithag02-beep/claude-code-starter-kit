@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# claude-tmux-flag {working|input|done|clear}
+# Color the tmux window a Claude Code session runs in, reflecting the session's state:
+#   working -> PURPLE (Claude is actively working on your task)
+#   input   -> RED    (Claude paused — needs your input / a decision)
+#   done    -> GREEN  (Claude finished — ready for you)
+#   clear   -> normal (idle / manual reset)
+# Hook-driven, so the color reflects real session state (not whether you've looked at it).
+# No-op when not running inside tmux.
+[ -n "${TMUX_PANE:-}" ] || exit 0
+win=$(tmux display-message -p -t "$TMUX_PANE" '#{window_id}' 2>/dev/null) || exit 0
+[ -n "$win" ] || exit 0
+case "${1:-}" in
+  working) tmux set-window-option -t "$win" window-status-style 'bg=colour99,fg=colour231,bold'  ;;  # PURPLE = working
+  input)   tmux set-window-option -t "$win" window-status-style 'bg=colour196,fg=colour231,bold' ;;  # RED    = needs you
+  done)    tmux set-window-option -t "$win" window-status-style 'bg=colour46,fg=colour16,bold'   ;;  # GREEN  = done
+  clear)   tmux set-window-option -u -t "$win" window-status-style ;;
+esac
